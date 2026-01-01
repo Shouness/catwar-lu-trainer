@@ -109,7 +109,7 @@
       gap: 1px;
       background: #555;
       padding: 1px;
-      grid-auto-rows: 24px; /* фиксированная высота строки */
+      grid-auto-rows: 24px; /* высота строки */
     }
 
     .cw-lu-cell {
@@ -145,7 +145,7 @@
       transform: scale(1.1);
     }
     .cw-lu-cell.cw-lu-hint-reveal {
-      /* Подсказка: только восклицательный знак, фон не перекрывается */
+      /* Подсказка: просто "!" поверх клетки, фон не меняем */
       color: #ffa500;
       text-shadow: 0 0 2px #000;
       font-weight: bold;
@@ -166,7 +166,7 @@
     .cw-lu-n7{color:#000}
     .cw-lu-n8{color:#808080}
 
-    .cw-lu-exit { box-shadow: 0 0 0 2px #0f0 inset; }
+    .cw-lu-exit      { box-shadow: 0 0 0 2px #0f0 inset; }
     .cw-lu-base-safe { box-shadow: 0 0 0 2px #0af inset; }
 
     /* панель звуков */
@@ -491,8 +491,9 @@
       const nr=centerCell.r+dr,nc=centerCell.c+dc;
       if(nr<0||nr>=game.rows||nc<0||nc>=game.cols)continue;
       const c=game.cells[nr][nc];
+      // НЕ выбираем клетки, на которых уже стоит флажок игрока
       if(c.hasMine && !c.isRevealed && !c.isAutoHintActive && !c.isFlagged){
-        candidates.push(c); // не трогаем уже отмеченные флажком
+        candidates.push(c);
       }
     }
     if(!candidates.length)return;
@@ -505,8 +506,11 @@
   }
 
   function showAutoHint(cell){
+    // дополнительная защита: если вдруг клетка помечена флагом — не трогаем её
+    if (cell.isFlagged) return;
     if(cell.isAutoHintActive||cell.isRevealed)return;
     cell.isAutoHintActive=true;
+
     const el=cell.el;
     const prevText   = el.textContent;
     const prevFlagged= cell.isFlagged;
@@ -639,9 +643,9 @@
     }
   }
 
+  // ---- запуск ----
   restartBtn.addEventListener('click',startNewGame);
   boardEl.addEventListener('contextmenu',e=>e.preventDefault());
-
   startNewGame();
 
 })();
